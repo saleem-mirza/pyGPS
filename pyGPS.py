@@ -42,4 +42,3 @@ nmea_processor.start()
 
 time.sleep(10)
 keep_running = False
-
