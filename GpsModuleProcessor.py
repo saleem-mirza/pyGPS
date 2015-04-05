@@ -57,10 +57,13 @@ class GpsModuleProcessor(object):
     def __del__(self):
         print("Resources closed")
 
-    def open(self, device="", baudrate=38400):
-        self.tx_rx = serial.Serial(device, baudrate)
+    def open(self, device="", baudrate=9600):
+        self.tx_rx = serial.Serial(device)
         self.tx_rx.timeout = 0.5
         self.set_gps_baud_rate(baudrate)
+        self.tx_rx.baudrate = baudrate
+        self.tx_rx.flushOutput()
+        self.tx_rx.flushInput()
 
     def read_line(self):
         return self.tx_rx.readline().rstrip()
@@ -78,17 +81,18 @@ class GpsModuleProcessor(object):
         )
         checksum = GpsModuleProcessor.calculate_checksum(command_string)
         command_string = "{0}{1}".format(command_string, checksum)
-        self.write_line(command_string)
+        self.write_line(command_string+"\r\n")
 
-    def set_gps_baud_rate(self, baud_rate):
-        command_string = "$PMTK251,{0}*".format(baud_rate)
+    def set_gps_baud_rate(self, baudrate):
+        command_string = "$PMTK251,{0}*".format(baudrate)
         checksum = GpsModuleProcessor.calculate_checksum(command_string)
         command_string = "{0}{1}".format(command_string, checksum)
-        self.write_line(command_string)
+        self.write_line(command_string+"\r\n")
+        self.tx_rx.baudrate = baudrate
 
     def set_gps_update_rate(self, rate):
         command_string = "$PMTK300,{0},0,0,0,0*".format(int(1000 / rate))
         checksum = GpsModuleProcessor.calculate_checksum(command_string)
         command_string = "{0}{1}".format(command_string, checksum)
-        self.write_line(command_string)
+        self.write_line(command_string+"\r\n")
 

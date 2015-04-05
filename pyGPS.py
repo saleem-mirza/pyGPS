@@ -15,6 +15,8 @@ def nmea_reader_thread_proc():
         g = GpsModuleProcessor()
         g.open("/dev/ttyO4")
         g.set_gps_baud_rate(38400)
+	g.set_gps_nmea_output(0,0,1,1,0,0)
+	g.set_gps_update_rate(2)
         nmea_line = ""
         while keep_running:
             nmea_line = g.read_line()
@@ -31,7 +33,7 @@ def nmea_processor_thread_proc():
             elem = nmea_queue.popleft()
             print(elem)
         except IndexError:
-            time.sleep(1)
+            time.sleep(0.5)
 
 
 nmea_thread = Thread(target=nmea_reader_thread_proc)
@@ -40,5 +42,5 @@ nmea_processor = Thread(target=nmea_processor_thread_proc)
 nmea_thread.start()
 nmea_processor.start()
 
-time.sleep(10)
+time.sleep(5)
 keep_running = False
